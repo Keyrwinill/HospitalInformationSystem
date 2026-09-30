@@ -1,0 +1,39 @@
+﻿@model IEnumerable<HospitalInformationSystem.Models.Entities.Doctor>
+
+@{
+    ViewData["Title"] = "Doctors";
+}
+
+<h1>Doctors</h1>
+
+<p>
+    <a asp-action="Create"
+       class="btn btn-primary">
+        Create Doctor
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Account</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>License Number</th>
+            <th>Active</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var doctor in Model)
+        {
+            <tr>
+                <td>@doctor.User.Account</td>
+                <td>@doctor.User.FirstName @doctor.User.LastName</td>
+                <td>@doctor.Department.Name</td>
+                <td>@doctor.LicenseNumber</td>
+                <td>@doctor.IsActive</td>
+            </tr>
+        }
+    </tbody>
+</table>

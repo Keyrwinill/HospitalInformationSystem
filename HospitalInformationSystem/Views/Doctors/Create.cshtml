@@ -1,0 +1,94 @@
+﻿@model HospitalInformationSystem.Models.ViewModels.CreateDoctorViewModel
+
+@{
+    ViewData["Title"] = "Create Doctor";
+}
+
+<h1>Create Doctor</h1>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3"></div>
+
+    <h4>Account Information</h4>
+
+    <div class="mb-3">
+        <label asp-for="Account" class="form-label"></label>
+        <input asp-for="Account" class="form-control" />
+        <span asp-validation-for="Account"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FirstName" class="form-label"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LastName" class="form-label"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ConfirmPassword" class="form-label"></label>
+        <input asp-for="ConfirmPassword" class="form-control" />
+        <span asp-validation-for="ConfirmPassword"
+              class="text-danger"></span>
+    </div>
+
+    <hr />
+
+    <h4>Doctor Information</h4>
+
+    <div class="mb-3">
+        <label asp-for="LicenseNumber" class="form-label"></label>
+        <input asp-for="LicenseNumber" class="form-control" />
+        <span asp-validation-for="LicenseNumber"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DepartmentId" class="form-label">
+            Department
+        </label>
+
+        <select asp-for="DepartmentId"
+                asp-items="ViewBag.Departments"
+                class="form-select">
+            <option value="">-- Select Department --</option>
+        </select>
+
+        <span asp-validation-for="DepartmentId"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Create
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,93 @@
+﻿@model HospitalInformationSystem.Models.Entities.Visit
+
+@{
+    ViewData["Title"] = "Visit Details";
+}
+
+<h1>Visit Details</h1>
+
+<div class="mb-4">
+    <h4>Patient</h4>
+
+    <dl class="row">
+        <dt class="col-sm-3">Medical Record Number</dt>
+        <dd class="col-sm-9">@Model.Patient.MedicalRecordNumber</dd>
+
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">
+            @Model.Patient.FirstName @Model.Patient.LastName
+        </dd>
+
+        <dt class="col-sm-3">Birthday</dt>
+        <dd class="col-sm-9">@Model.Patient.Birthday</dd>
+    </dl>
+</div>
+
+<div class="mb-4">
+    <h4>Visit</h4>
+
+    <dl class="row">
+        <dt class="col-sm-3">Visit Date / Time</dt>
+        <dd class="col-sm-9">@Model.VisitDateTime</dd>
+
+        <dt class="col-sm-3">Appointment Reason</dt>
+        <dd class="col-sm-9">
+            @(Model.Appointment?.Reason ?? "-")
+        </dd>
+
+        <dt class="col-sm-3">Chief Complaint</dt>
+        <dd class="col-sm-9">
+            @(Model.ChiefComplaint ?? "-")
+        </dd>
+
+        <dt class="col-sm-3">Notes</dt>
+        <dd class="col-sm-9">
+            @(Model.Notes ?? "-")
+        </dd>
+    </dl>
+</div>
+
+<div class="mb-4">
+    <h4>Diagnoses</h4>
+
+    @if (Model.Diagnoses.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var diagnosis in Model.Diagnoses)
+                {
+                    <tr>
+                        <td>@diagnosis.DiagnosisCode</td>
+                        <td>@diagnosis.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No diagnoses recorded.</p>
+    }
+</div>
+
+<a asp-action="Edit"
+   asp-route-id="@Model.Id"
+   class="btn btn-primary">
+    Edit Clinical Notes
+</a>
+
+<a asp-action="AddDiagnosis"
+   asp-route-visitId="@Model.Id"
+   class="btn btn-primary">
+    Add Diagnosis
+</a>
+
+<a asp-action="Index" class="btn btn-secondary">
+    Back to My Appointments
+</a>

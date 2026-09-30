@@ -1,0 +1,38 @@
+﻿@model IEnumerable<HospitalInformationSystem.Models.Entities.Medication>
+
+@{
+    ViewData["Title"] = "Medications";
+}
+
+<h1>Medications</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Add Medication
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Unit</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var medication in Model)
+        {
+            <tr>
+                <td>@medication.Code</td>
+                <td>@medication.Name</td>
+                <td>@medication.Unit</td>
+                <td>
+                    @(medication.IsActive ? "Active" : "Inactive")
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

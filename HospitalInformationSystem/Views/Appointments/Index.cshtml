@@ -1,0 +1,87 @@
+﻿@model IEnumerable<HospitalInformationSystem.Models.Entities.Appointment>
+
+@using HospitalInformationSystem.Models.Entities
+
+@{
+    ViewData["Title"] = "Appointments";
+}
+
+<h1>Appointments</h1>
+
+<p>
+    <a asp-action="Create"
+       class="btn btn-primary">
+        Create Appointment
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date / Time</th>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var appointment in Model)
+        {
+            <tr>
+                <td>@appointment.AppointmentDateTime</td>
+
+                <td>
+                    @appointment.Patient.FirstName
+                    @appointment.Patient.LastName
+                </td>
+
+                <td>
+                    @appointment.Doctor.User.FirstName
+                    @appointment.Doctor.User.LastName
+                </td>
+
+                <td>
+                    @appointment.Doctor.Department.Name
+                </td>
+
+                <td>@appointment.Status</td>
+
+                <td>@appointment.Reason</td>
+
+                <td>
+                    @if (appointment.Status == AppointmentStatus.Scheduled)
+                    {
+                        <form asp-action="Cancel"
+                              asp-route-id="@appointment.Id"
+                              method="post"
+                              class="d-inline">
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger">
+                                Cancel
+                            </button>
+                        </form>
+
+                        @if (appointment.AppointmentDateTime <= DateTime.Now)
+                        {
+                            <form asp-action="MarkNoShow"
+                                  asp-route-id="@appointment.Id"
+                                  method="post"
+                                  class="d-inline">
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-secondary">
+                                    No Show
+                                </button>
+                            </form>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

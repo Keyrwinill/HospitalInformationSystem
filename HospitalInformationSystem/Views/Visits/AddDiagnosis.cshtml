@@ -1,0 +1,41 @@
+﻿@model HospitalInformationSystem.Models.ViewModels.CreateDiagnosisViewModel
+
+@{
+    ViewData["Title"] = "Add Diagnosis";
+}
+
+<h1>Add Diagnosis</h1>
+
+<form asp-action="AddDiagnosis" method="post">
+    <input asp-for="VisitId" type="hidden" />
+
+    <div class="mb-3">
+        <label asp-for="DiagnosisCode" class="form-label"></label>
+        <input asp-for="DiagnosisCode" class="form-control" />
+        <span asp-validation-for="DiagnosisCode"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description"
+                  class="form-control"
+                  rows="3"></textarea>
+        <span asp-validation-for="Description"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Add Diagnosis
+    </button>
+
+    <a asp-action="Details"
+       asp-route-id="@Model.VisitId"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,67 @@
+﻿@model IEnumerable<HospitalInformationSystem.Models.Entities.Appointment>
+@using HospitalInformationSystem.Models.Entities
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<h1>My Appointments</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date / Time</th>
+            <th>Patient</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var appointment in Model)
+        {
+            <tr>
+                <td>@appointment.AppointmentDateTime</td>
+                <td>
+                    @appointment.Patient.MedicalRecordNumber -
+                    @appointment.Patient.FirstName
+                    @appointment.Patient.LastName
+                </td>
+                <td>@appointment.Status</td>
+                <td>@appointment.Reason</td>
+                <td>
+                    @if (appointment.Status == AppointmentStatus.Scheduled)
+                    {
+                        if (appointment.Visit == null)
+                        {
+                            <form asp-controller="Visits"
+                                  asp-action="Start"
+                                  method="post"
+                                  class="d-inline">
+
+                                <input type="hidden"
+                                       name="appointmentId"
+                                       value="@appointment.Id" />
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-primary">
+                                    Start Visit
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Visits"
+                               asp-action="Details"
+                               asp-route-id="@appointment.Visit.Id"
+                               class="btn btn-sm btn-primary">
+                                Open Visit
+                            </a>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

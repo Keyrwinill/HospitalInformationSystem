@@ -1,0 +1,83 @@
+﻿@model HospitalInformationSystem.Models.ViewModels.CreateAppointmentViewModel
+
+@{
+    ViewData["Title"] = "Create Appointment";
+}
+
+<h1>Create Appointment</h1>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="PatientId"
+               class="form-label">
+            Patient
+        </label>
+
+        <select asp-for="PatientId"
+                asp-items="ViewBag.Patients"
+                class="form-select">
+            <option value="">-- Select Patient --</option>
+        </select>
+
+        <span asp-validation-for="PatientId"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DoctorId"
+               class="form-label">
+            Doctor
+        </label>
+
+        <select asp-for="DoctorId"
+                asp-items="ViewBag.Doctors"
+                class="form-select">
+            <option value="">-- Select Doctor --</option>
+        </select>
+
+        <span asp-validation-for="DoctorId"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AppointmentDateTime"
+               class="form-label">
+            Appointment Date / Time
+        </label>
+
+        <input asp-for="AppointmentDateTime"
+               class="form-control" />
+
+        <span asp-validation-for="AppointmentDateTime"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Reason"
+               class="form-label"></label>
+
+        <textarea asp-for="Reason"
+                  class="form-control"
+                  rows="3"></textarea>
+
+        <span asp-validation-for="Reason"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit"
+            class="btn btn-primary">
+        Create
+    </button>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
