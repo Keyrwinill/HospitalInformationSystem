@@ -8,12 +8,112 @@
 
 <h1>Appointments</h1>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
 <p>
     <a asp-action="Create"
        class="btn btn-primary">
         Create Appointment
     </a>
 </p>
+
+<form asp-action="Index"
+      method="get"
+      class="mb-3">
+
+    <div class="row g-2 mb-2">
+        <div class="col-md-5">
+            <label class="form-label">Patient</label>
+            <input type="text"
+                   name="search"
+                   value="@ViewBag.Search"
+                   class="form-control"
+                   placeholder="Search by MRN or patient name" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Date</label>
+            <input type="date"
+                   name="date"
+                   value="@(ViewBag.Date?.ToString("yyyy-MM-dd"))"
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Department</label>
+            <select name="departmentId"
+                    class="form-select">
+                <option value="">All Departments</option>
+
+                @foreach (var department in ViewBag.Departments)
+                {
+                    <option value="@department.Id"
+                            selected="@(ViewBag.DepartmentId == department.Id)">
+                        @department.Name
+                    </option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Doctor</label>
+            <select name="doctorId"
+                    class="form-select">
+                <option value="">All Doctors</option>
+
+                @foreach (var doctor in ViewBag.Doctors)
+                {
+                    <option value="@doctor.Id"
+                            selected="@(ViewBag.DoctorId == doctor.Id)">
+                        @doctor.FullName
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Status</label>
+            <select name="status"
+                    class="form-select">
+                <option value="">All Statuses</option>
+
+                @foreach (var status in Enum.GetValues<AppointmentStatus>())
+                {
+                    <option value="@status"
+                            selected="@(ViewBag.Status == status)">
+                        @status
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <button type="submit"
+                    class="btn btn-primary">
+                Filter
+            </button>
+
+            <a asp-action="Index"
+               asp-route-date="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")"
+               class="btn btn-outline-primary">
+                Today
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Clear
+            </a>
+        </div>
+    </div>
+
+</form>
 
 <table class="table">
     <thead>
@@ -32,16 +132,14 @@
         @foreach (var appointment in Model)
         {
             <tr>
-                <td>@appointment.AppointmentDateTime</td>
+                <td>@appointment.AppointmentDateTime.ToString("yyyy-MM-dd HH:mm")</td>
 
                 <td>
-                    @appointment.Patient.FirstName
-                    @appointment.Patient.LastName
+                    @appointment.Patient.FullName
                 </td>
 
                 <td>
-                    @appointment.Doctor.User.FirstName
-                    @appointment.Doctor.User.LastName
+                    @appointment.Doctor.FullName
                 </td>
 
                 <td>
@@ -55,18 +153,29 @@
                 <td>
                     @if (appointment.Status == AppointmentStatus.Scheduled)
                     {
-                        <form asp-action="Cancel"
-                              asp-route-id="@appointment.Id"
-                              method="post"
-                              class="d-inline">
+                        @if (appointment.Visit == null)
+                        {
+                            <a asp-action="Reschedule"
+                               asp-route-id="@appointment.Id"
+                               class="btn btn-sm btn-primary">
+                                Reschedule
+                            </a>
 
-                            <button type="submit"
-                                    class="btn btn-sm btn-danger">
-                                Cancel
-                            </button>
-                        </form>
+                            <form asp-action="Cancel"
+                                  asp-route-id="@appointment.Id"
+                                  method="post"
+                                  class="d-inline">
 
-                        @if (appointment.AppointmentDateTime <= DateTime.Now)
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger">
+                                    Cancel
+                                </button>
+                            </form>
+                        }
+
+                        @if (appointment.Status == AppointmentStatus.Scheduled &&
+                             appointment.Visit == null &&
+                             appointment.AppointmentDateTime <= DateTime.Now)
                         {
                             <form asp-action="MarkNoShow"
                                   asp-route-id="@appointment.Id"

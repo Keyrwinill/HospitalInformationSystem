@@ -1,0 +1,18 @@
+﻿namespace HospitalInformationSystem.Models.ViewModels;
+
+public class AuditLogListItemViewModel
+{
+	public long Id { get; set; }
+
+	public Guid? UserId { get; set; }
+
+	public string? UserAccount { get; set; }
+
+	public string Action { get; set; } = string.Empty;
+
+	public string EntityName { get; set; } = string.Empty;
+
+	public string EntityId { get; set; } = string.Empty;
+
+	public DateTime CreatedAt { get; set; }
+}

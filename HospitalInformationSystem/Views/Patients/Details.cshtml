@@ -1,0 +1,120 @@
+﻿@model HospitalInformationSystem.Models.Entities.Patient
+
+@{
+    ViewData["Title"] = "Patient Details";
+}
+
+<h1>Patient Details</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Medical Record Number</dt>
+    <dd class="col-sm-9">@Model.MedicalRecordNumber</dd>
+
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.FullName</dd>
+
+    <dt class="col-sm-3">Birthday</dt>
+    <dd class="col-sm-9">@Model.Birthday</dd>
+
+    <dt class="col-sm-3">Age</dt>
+    <dd class="col-sm-9">@Model.Age</dd>
+
+    <dt class="col-sm-3">Gender</dt>
+    <dd class="col-sm-9">@Model.Gender</dd>
+
+    <dt class="col-sm-3">Phone</dt>
+    <dd class="col-sm-9">@(Model.Phone ?? "-")</dd>
+
+    <dt class="col-sm-3">Address</dt>
+    <dd class="col-sm-9">@(Model.Address ?? "-")</dd>
+
+    <dt class="col-sm-3">Created At</dt>
+    <dd class="col-sm-9">@Model.CreatedAt</dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">
+        @(Model.IsActive ? "Active" : "Inactive")
+    </dd>
+</dl>
+
+<hr />
+
+<h3>Appointment History</h3>
+
+@if (Model.Appointments.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date / Time</th>
+                <th>Doctor</th>
+                <th>Status</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var appointment in Model.Appointments
+                .OrderByDescending(x => x.AppointmentDateTime))
+            {
+                <tr>
+                    <td>@appointment.AppointmentDateTime</td>
+                    <td>@appointment.Doctor.FullName</td>
+                    <td>@appointment.Status</td>
+                    <td>@(appointment.Reason ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No appointments recorded.</p>
+}
+
+<hr />
+
+<h3>Visit History</h3>
+
+@if (Model.Visits.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Visit Date / Time</th>
+                <th>Doctor</th>
+                <th>Chief Complaint</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var visit in Model.Visits
+                .OrderByDescending(x => x.VisitDateTime))
+            {
+                <tr>
+                    <td>@visit.VisitDateTime</td>
+                    <td>@visit.Doctor.FullName</td>
+                    <td>@(visit.ChiefComplaint ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No visits recorded.</p>
+}
+
+@if (Model.IsActive)
+{
+    <a asp-action="Edit"
+       asp-route-id="@Model.Id"
+       class="btn btn-primary">
+        Edit Patient
+    </a>
+}
+
+<a asp-action="Index"
+   class="btn btn-secondary">
+    Back to Patients
+</a>

@@ -22,6 +22,7 @@ public class CreateUserViewModel
 	public string LastName { get; set; } = string.Empty;
 
 	[Required]
+	[MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
 	[DataType(DataType.Password)]
 	public string Password { get; set; } = string.Empty;
 

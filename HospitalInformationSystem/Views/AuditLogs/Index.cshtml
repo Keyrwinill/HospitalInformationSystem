@@ -1,0 +1,125 @@
+﻿@model IEnumerable<HospitalInformationSystem.Models.ViewModels.AuditLogListItemViewModel>
+
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<h1>Audit Logs</h1>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text"
+               name="search"
+               value="@ViewBag.Search"
+               class="form-control"
+               placeholder="Search action..." />
+
+        <select name="entity" class="form-select">
+            <option value="">All Entities</option>
+            <option value="Appointment" selected="@(ViewBag.Entity == "Appointment")">Appointment</option>
+            <option value="Visit" selected="@(ViewBag.Entity == "Visit")">Visit</option>
+            <option value="Diagnosis" selected="@(ViewBag.Entity == "Diagnosis")">Diagnosis</option>
+            <option value="PrescriptionItem" selected="@(ViewBag.Entity == "PrescriptionItem")">Prescription Item</option>
+            <option value="Patient" selected="@(ViewBag.Entity == "Patient")">Patient</option>
+            <option value="Doctor" selected="@(ViewBag.Entity == "Doctor")">Doctor</option>
+            <option value="Department" selected="@(ViewBag.Entity == "Department")">Department</option>
+            <option value="Medication" selected="@(ViewBag.Entity == "Medication")">Medication</option>
+            <option value="User" selected="@(ViewBag.Entity == "User")">User</option>
+        </select>
+
+        <input type="date"
+               name="fromDate"
+               value="@(ViewBag.FromDate?.ToString("yyyy-MM-dd"))"
+               class="form-control"
+               title="From date" />
+
+        <input type="date"
+               name="toDate"
+               value="@(ViewBag.ToDate?.ToString("yyyy-MM-dd"))"
+               class="form-control"
+               title="To date" />
+
+        <button type="submit" class="btn btn-primary">
+            Search
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Clear
+        </a>
+    </div>
+</form>
+
+<div asp-validation-summary="ModelOnly"
+     class="text-danger mb-3"></div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>Entity ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.CreatedAt</td>
+
+                <td>
+                    @if (!string.IsNullOrEmpty(log.UserAccount))
+                    {
+                        @log.UserAccount
+                    }
+                    else
+                    {
+                        @log.UserId
+                    }
+                </td>
+
+                <td>@log.Action</td>
+                <td>@log.EntityName</td>
+                <td>@log.EntityId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.TotalPages > 1)
+{
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            Page @ViewBag.Page of @ViewBag.TotalPages
+        </div>
+
+        <div>
+            @if (ViewBag.Page > 1)
+            {
+                <a asp-action="Index"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-entity="@ViewBag.Entity"
+                   asp-route-fromDate="@ViewBag.FromDate"
+                   asp-route-toDate="@ViewBag.ToDate"
+                   asp-route-page="@(ViewBag.Page - 1)"
+                   class="btn btn-outline-secondary">
+                    Previous
+                </a>
+            }
+
+            @if (ViewBag.Page < ViewBag.TotalPages)
+            {
+                <a asp-action="Index"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-entity="@ViewBag.Entity"
+                   asp-route-fromDate="@ViewBag.FromDate"
+                   asp-route-toDate="@ViewBag.ToDate"
+                   asp-route-page="@(ViewBag.Page + 1)"
+                   class="btn btn-outline-secondary">
+                    Next
+                </a>
+            }
+        </div>
+    </div>
+}

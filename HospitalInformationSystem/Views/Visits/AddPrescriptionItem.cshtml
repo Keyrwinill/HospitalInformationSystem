@@ -1,0 +1,72 @@
+﻿@model HospitalInformationSystem.Models.ViewModels.AddPrescriptionItemViewModel
+
+@{
+    ViewData["Title"] = "Add Medication";
+}
+
+<h1>Add Medication</h1>
+
+<form asp-action="AddPrescriptionItem" method="post">
+    <input asp-for="VisitId" type="hidden" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="MedicationId" class="form-label"></label>
+
+        <select asp-for="MedicationId"
+                class="form-select">
+            <option value="">-- Select Medication --</option>
+
+            @foreach (var medication in ViewBag.Medications)
+            {
+                <option value="@medication.Id">
+                    @medication.Name (@medication.Unit)
+                </option>
+            }
+        </select>
+
+        <span asp-validation-for="MedicationId"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Dosage" class="form-label"></label>
+        <input asp-for="Dosage" class="form-control" />
+        <span asp-validation-for="Dosage"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Frequency" class="form-label"></label>
+        <input asp-for="Frequency" class="form-control" />
+        <span asp-validation-for="Frequency"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Days" class="form-label"></label>
+        <input asp-for="Days"
+               type="number"
+               min="1"
+               max="365"
+               class="form-control" />
+        <span asp-validation-for="Days"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Add Medication
+    </button>
+
+    <a asp-action="Details"
+       asp-route-id="@Model.VisitId"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

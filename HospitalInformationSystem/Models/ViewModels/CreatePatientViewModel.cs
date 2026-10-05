@@ -2,7 +2,7 @@
 
 namespace HospitalInformationSystem.Models.ViewModels;
 
-public class CreatePatientViewModel
+public class CreatePatientViewModel : IValidatableObject
 {
 	[Required]
 	[MaxLength(20)]
@@ -30,4 +30,15 @@ public class CreatePatientViewModel
 
 	[MaxLength(200)]
 	public string? Address { get; set; }
+
+	public IEnumerable<ValidationResult> Validate(
+	ValidationContext validationContext)
+	{
+		if (Birthday > DateOnly.FromDateTime(DateTime.Today))
+		{
+			yield return new ValidationResult(
+				"Birthday cannot be in the future.",
+				new[] { nameof(Birthday) });
+		}
+	}
 }

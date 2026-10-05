@@ -6,6 +6,13 @@
 
 <h1>Patients</h1>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
 <p>
     <a asp-action="Create"
        class="btn btn-primary">
@@ -13,14 +20,58 @@
     </a>
 </p>
 
+<form asp-action="Index"
+      method="get"
+      class="mb-3">
+
+    <div class="row g-2 align-items-end">
+        <div class="col-md-7">
+            <label class="form-label">Patient</label>
+            <input type="text"
+                   name="search"
+                   value="@ViewBag.Search"
+                   class="form-control"
+                   placeholder="Search by MRN or patient name" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Status</label>
+            <select name="isActive" class="form-select">
+                <option value="">All</option>
+                <option value="true"
+                        selected="@(ViewBag.IsActive == true)">
+                    Active
+                </option>
+                <option value="false"
+                        selected="@(ViewBag.IsActive == false)">
+                    Inactive
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Clear
+            </a>
+        </div>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
             <th>Medical Record Number</th>
             <th>Name</th>
             <th>Birthday</th>
-            <th>Gender</th>
+            <th>Age</th>
+            <th>Gender</th>    
             <th>Phone</th>
+            <th>Status</th>
+            <th>Action</th>
         </tr>
     </thead>
 
@@ -29,10 +80,52 @@
         {
             <tr>
                 <td>@patient.MedicalRecordNumber</td>
-                <td>@patient.FirstName @patient.LastName</td>
+                <td>@patient.FullName</td>
                 <td>@patient.Birthday</td>
+                <td>@patient.Age</td>
                 <td>@patient.Gender</td>
                 <td>@patient.Phone</td>
+                <td>
+                    @(patient.IsActive ? "Active" : "Inactive")
+                </td>
+                <td>
+                    <a asp-action="Details"
+                       asp-route-id="@patient.Id"
+                       class="btn btn-sm btn-primary">
+                        Details
+                    </a>
+
+                    @if (patient.IsActive)
+                    {
+                        <a asp-action="Edit"
+                           asp-route-id="@patient.Id"
+                           class="btn btn-sm btn-primary">
+                            Edit
+                        </a>
+
+                        <form asp-action="Deactivate"
+                              asp-route-id="@patient.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger">
+                                Deactivate
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Activate"
+                              asp-route-id="@patient.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Activate
+                            </button>
+                        </form>
+                    }
+                </td>
             </tr>
         }
     </tbody>

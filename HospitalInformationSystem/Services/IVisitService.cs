@@ -1,4 +1,5 @@
-﻿using HospitalInformationSystem.Models.Entities;
+﻿using HospitalInformationSystem.Models.Constants;
+using HospitalInformationSystem.Models.Entities;
 
 namespace HospitalInformationSystem.Services;
 
@@ -15,7 +16,7 @@ public interface IVisitService
 		int visitId,
 		Guid currentUserId);
 
-	Task<bool> UpdateVisitAsync(
+	Task<VisitOperationResult> UpdateVisitAsync(
 		int visitId,
 		Guid currentUserId,
 		string? chiefComplaint,
@@ -36,4 +37,37 @@ public interface IVisitService
 		int days);
 
 	Task<List<Medication>> GetActiveMedicationsAsync();
+
+	Task<VisitOperationResult> CompleteVisitAsync(
+		int visitId,
+		Guid currentUserId);
+
+	Task<Diagnosis?> GetDiagnosisForEditAsync(
+		int diagnosisId,
+		Guid currentUserId);
+
+	Task<int?> UpdateDiagnosisAsync(
+		int diagnosisId,
+		Guid currentUserId,
+		string diagnosisCode,
+		string description);
+
+	Task<int?> DeleteDiagnosisAsync(
+		int diagnosisId,
+		Guid currentUserId);
+
+	Task<PrescriptionItem?> GetPrescriptionItemForEditAsync(
+		int prescriptionItemId,
+		Guid currentUserId);
+
+	Task<int?> UpdatePrescriptionItemAsync(
+		int prescriptionItemId,
+		Guid currentUserId,
+		string dosage,
+		string frequency,
+		int days);
+
+	Task<int?> DeletePrescriptionItemAsync(
+		int prescriptionItemId,
+		Guid currentUserId);
 }

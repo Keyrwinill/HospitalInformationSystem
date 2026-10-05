@@ -12,8 +12,19 @@ builder.Services.AddDbContext<HospitalDbContext>(options =>
 	options.UseSqlServer(
 		builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Authentication and security services.
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CustomCookieAuthenticationEvents>();
+
+// Application services.
+builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IMedicationService, MedicationService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
 
 builder.Services
@@ -40,6 +51,9 @@ builder.Services
 
 		// Refresh the expiration period when an active user makes requests.
 		options.SlidingExpiration = true;
+
+		// Use a custom events class to validate the user's active status on each request.
+		options.EventsType = typeof(CustomCookieAuthenticationEvents);
 	});
 
 builder.Services.AddAuthorization();

@@ -1,9 +1,11 @@
 ﻿using HospitalInformationSystem.Models.Constants;
+using HospitalInformationSystem.Models.Entities;
+using HospitalInformationSystem.Models.ViewModels;
 using HospitalInformationSystem.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using HospitalInformationSystem.Models.ViewModels;
 
 namespace HospitalInformationSystem.Controllers;
 
@@ -90,6 +92,17 @@ public class VisitsController : Controller
 			return NotFound();
 		}
 
+		if (visit.Appointment == null ||
+			visit.Appointment.Status != AppointmentStatus.Scheduled)
+		{
+			TempData["ErrorMessage"] =
+				"This visit can no longer be edited.";
+
+			return RedirectToAction(
+				nameof(Details),
+				new { id = visit.Id });
+		}
+
 		var model = new EditVisitViewModel
 		{
 			Id = visit.Id,
@@ -111,13 +124,13 @@ public class VisitsController : Controller
 
 		var currentUserId = GetCurrentUserId();
 
-		var updated = await _visitService.UpdateVisitAsync(
+		var result = await _visitService.UpdateVisitAsync(
 			model.Id,
 			currentUserId,
 			model.ChiefComplaint,
 			model.Notes);
 
-		if (!updated)
+		if (result == VisitOperationResult.NotFound)
 		{
 			return NotFound();
 		}
@@ -139,6 +152,17 @@ public class VisitsController : Controller
 		if (visit == null)
 		{
 			return NotFound();
+		}
+
+		if (visit.Appointment == null ||
+			visit.Appointment.Status != AppointmentStatus.Scheduled)
+		{
+			TempData["ErrorMessage"] =
+				"A diagnosis cannot be added to this visit because the visit is no longer active.";
+
+			return RedirectToAction(
+				nameof(Details),
+				new { id = visit.Id });
 		}
 
 		var model = new CreateDiagnosisViewModel
@@ -191,6 +215,17 @@ public class VisitsController : Controller
 			return NotFound();
 		}
 
+		if (visit.Appointment == null ||
+			visit.Appointment.Status != AppointmentStatus.Scheduled)
+		{
+			TempData["ErrorMessage"] =
+				"A prescription item cannot be added to this visit because the visit is no longer active.";
+
+			return RedirectToAction(
+				nameof(Details),
+				new { id = visit.Id });
+		}
+
 		var medications =
 			await _visitService.GetActiveMedicationsAsync();
 
@@ -202,5 +237,214 @@ public class VisitsController : Controller
 		};
 
 		return View(model);
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> AddPrescriptionItem(
+	AddPrescriptionItemViewModel model)
+	{
+		if (!ModelState.IsValid)
+		{
+			ViewBag.Medications =
+				await _visitService.GetActiveMedicationsAsync();
+
+			return View(model);
+		}
+
+		var currentUserId = GetCurrentUserId();
+
+		var prescriptionItem =
+			await _visitService.AddPrescriptionItemAsync(
+				model.VisitId,
+				currentUserId,
+				model.MedicationId!.Value,
+				model.Dosage,
+				model.Frequency,
+				model.Days!.Value);
+
+		if (prescriptionItem == null)
+		{
+			return NotFound();
+		}
+
+		return RedirectToAction(
+			nameof(Details),
+			new { id = model.VisitId });
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Complete(int id)
+	{
+		var currentUserId = GetCurrentUserId();
+
+		var result = await _visitService.CompleteVisitAsync(
+			id,
+			currentUserId);
+
+		if (result == VisitOperationResult.NotFound)
+		{
+			return NotFound();
+		}
+
+		if (result == VisitOperationResult.ValidationError)
+		{
+			TempData["ErrorMessage"] =
+				"The visit cannot be completed. At least one diagnosis is required.";
+
+			return RedirectToAction(
+				nameof(Details),
+				new { id });
+		}
+
+		return RedirectToAction(
+			nameof(Details),
+			new { id });
+	}
+
+	[HttpGet]
+	public async Task<IActionResult> EditDiagnosis(int id)
+	{
+		var currentUserId = GetCurrentUserId();
+
+		var diagnosis = await _visitService
+			.GetDiagnosisForEditAsync(id, currentUserId);
+
+		if (diagnosis == null)
+		{
+			return NotFound();
+		}
+
+		var model = new EditDiagnosisViewModel
+		{
+			Id = diagnosis.Id,
+			VisitId = diagnosis.VisitId,
+			DiagnosisCode = diagnosis.DiagnosisCode,
+			Description = diagnosis.Description
+		};
+
+		return View(model);
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> EditDiagnosis(
+	EditDiagnosisViewModel model)
+	{
+		if (!ModelState.IsValid)
+		{
+			return View(model);
+		}
+
+		var currentUserId = GetCurrentUserId();
+
+		var visitId = await _visitService.UpdateDiagnosisAsync(
+			model.Id,
+			currentUserId,
+			model.DiagnosisCode,
+			model.Description);
+
+		if (!visitId.HasValue)
+		{
+			return BadRequest();
+		}
+
+		return RedirectToAction(
+			nameof(Details),
+			new { id = visitId.Value });
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> DeleteDiagnosis(int id)
+	{
+		var currentUserId = GetCurrentUserId();
+
+		var visitId = await _visitService.DeleteDiagnosisAsync(
+			id,
+			currentUserId);
+
+		if (!visitId.HasValue)
+		{
+			return BadRequest();
+		}
+
+		return RedirectToAction(
+			nameof(Details),
+			new { id = visitId.Value });
+	}
+
+	[HttpGet]
+	public async Task<IActionResult> EditPrescriptionItem(int id)
+	{
+		var currentUserId = GetCurrentUserId();
+
+		var item = await _visitService
+			.GetPrescriptionItemForEditAsync(id, currentUserId);
+
+		if (item == null)
+		{
+			return NotFound();
+		}
+
+		var model = new EditPrescriptionItemViewModel
+		{
+			Id = item.Id,
+			Dosage = item.Dosage,
+			Frequency = item.Frequency,
+			Days = item.Days
+		};
+
+		return View(model);
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> EditPrescriptionItem(
+	EditPrescriptionItemViewModel model)
+	{
+		if (!ModelState.IsValid)
+		{
+			return View(model);
+		}
+
+		var currentUserId = GetCurrentUserId();
+
+		var visitId = await _visitService.UpdatePrescriptionItemAsync(
+			model.Id,
+			currentUserId,
+			model.Dosage,
+			model.Frequency,
+			model.Days);
+
+		if (!visitId.HasValue)
+		{
+			return BadRequest();
+		}
+
+		return RedirectToAction(
+			nameof(Details),
+			new { id = visitId.Value });
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> DeletePrescriptionItem(int id)
+	{
+		var currentUserId = GetCurrentUserId();
+
+		var visitId = await _visitService.DeletePrescriptionItemAsync(
+			id,
+			currentUserId);
+
+		if (!visitId.HasValue)
+		{
+			return BadRequest();
+		}
+
+		return RedirectToAction(
+			nameof(Details),
+			new { id = visitId.Value });
 	}
 }

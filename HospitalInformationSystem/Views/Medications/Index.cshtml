@@ -19,6 +19,7 @@
             <th>Name</th>
             <th>Unit</th>
             <th>Status</th>
+            <th>Action</th>
         </tr>
     </thead>
 
@@ -31,6 +32,32 @@
                 <td>@medication.Unit</td>
                 <td>
                     @(medication.IsActive ? "Active" : "Inactive")
+                </td>
+                <td>
+                    @if (medication.IsActive)
+                    {
+                        <form asp-action="Deactivate"
+                              asp-route-id="@medication.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger">
+                                Deactivate
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Activate"
+                              asp-route-id="@medication.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Activate
+                            </button>
+                        </form>
+                    }
                 </td>
             </tr>
         }

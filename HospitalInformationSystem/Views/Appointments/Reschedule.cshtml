@@ -1,0 +1,38 @@
+﻿@model HospitalInformationSystem.Models.ViewModels.RescheduleAppointmentViewModel
+
+@{
+    ViewData["Title"] = "Reschedule Appointment";
+}
+
+<h1>Reschedule Appointment</h1>
+
+<form asp-action="Reschedule" method="post">
+    <input asp-for="Id" type="hidden" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="AppointmentDateTime"
+               class="form-label"></label>
+
+        <input asp-for="AppointmentDateTime"
+               type="datetime-local"
+               class="form-control" />
+
+        <span asp-validation-for="AppointmentDateTime"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Reschedule
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

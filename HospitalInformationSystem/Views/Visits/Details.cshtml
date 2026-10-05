@@ -1,10 +1,18 @@
-﻿@model HospitalInformationSystem.Models.Entities.Visit
+﻿@using HospitalInformationSystem.Models.Entities
+@model HospitalInformationSystem.Models.Entities.Visit
 
 @{
     ViewData["Title"] = "Visit Details";
 }
 
 <h1>Visit Details</h1>
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
 
 <div class="mb-4">
     <h4>Patient</h4>
@@ -14,9 +22,7 @@
         <dd class="col-sm-9">@Model.Patient.MedicalRecordNumber</dd>
 
         <dt class="col-sm-3">Name</dt>
-        <dd class="col-sm-9">
-            @Model.Patient.FirstName @Model.Patient.LastName
-        </dd>
+        <dd class="col-sm-9">@Model.Patient.FullName</dd>
 
         <dt class="col-sm-3">Birthday</dt>
         <dd class="col-sm-9">@Model.Patient.Birthday</dd>
@@ -57,6 +63,12 @@
                 <tr>
                     <th>Code</th>
                     <th>Description</th>
+
+                    @if (Model.Appointment != null &&
+                        Model.Appointment.Status == AppointmentStatus.Scheduled)
+                    {
+                        <th>Actions</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -65,6 +77,28 @@
                     <tr>
                         <td>@diagnosis.DiagnosisCode</td>
                         <td>@diagnosis.Description</td>
+
+                        @if (Model.Appointment != null &&
+                             Model.Appointment.Status == AppointmentStatus.Scheduled)
+                        {
+                            <td>
+                                <a asp-action="EditDiagnosis"
+                                   asp-route-id="@diagnosis.Id"
+                                   class="btn btn-sm btn-primary">
+                                    Edit
+                                </a>
+
+                                <form asp-action="DeleteDiagnosis"
+                                      asp-route-id="@diagnosis.Id"
+                                      method="post"
+                                      class="d-inline">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -76,18 +110,104 @@
     }
 </div>
 
-<a asp-action="Edit"
-   asp-route-id="@Model.Id"
-   class="btn btn-primary">
-    Edit Clinical Notes
-</a>
+<hr />
 
-<a asp-action="AddDiagnosis"
-   asp-route-visitId="@Model.Id"
-   class="btn btn-primary">
-    Add Diagnosis
-</a>
+<h3>Prescription</h3>
 
-<a asp-action="Index" class="btn btn-secondary">
+@if (Model.Prescription != null &&
+     Model.Prescription.Items.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Medication</th>
+                <th>Unit</th>
+                <th>Dosage</th>
+                <th>Frequency</th>
+                <th>Days</th>
+
+                @if (Model.Appointment != null &&
+                        Model.Appointment.Status == AppointmentStatus.Scheduled)
+                {
+                    <th>Actions</th>
+                }
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model.Prescription.Items)
+            {
+                <tr>
+                    <td>@item.Medication.Name</td>
+                    <td>@item.Medication.Unit</td>
+                    <td>@item.Dosage</td>
+                    <td>@item.Frequency</td>
+                    <td>@item.Days</td>
+
+                    @if (Model.Appointment != null &&
+                         Model.Appointment.Status == AppointmentStatus.Scheduled)
+                    {
+                        <td>
+                            <a asp-action="EditPrescriptionItem"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-primary">
+                                Edit
+                            </a>
+
+                            <form asp-action="DeletePrescriptionItem"
+                                  asp-route-id="@item.Id"
+                                  method="post"
+                                  class="d-inline">
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No prescription recorded.</p>
+}
+
+@if (Model.Appointment != null &&
+     Model.Appointment.Status == AppointmentStatus.Scheduled)
+{
+    <form asp-action="Complete"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="d-inline">
+        <button type="submit"
+                class="btn btn-success">
+            Complete Visit
+        </button>
+    </form>
+
+    <a asp-action="AddPrescriptionItem"
+       asp-route-visitId="@Model.Id"
+       class="btn btn-primary">
+        Add Medication
+    </a>
+
+    <a asp-action="Edit"
+       asp-route-id="@Model.Id"
+       class="btn btn-primary">
+        Edit Clinical Notes
+    </a>
+
+    <a asp-action="AddDiagnosis"
+       asp-route-visitId="@Model.Id"
+       class="btn btn-primary">
+        Add Diagnosis
+    </a>
+}
+
+<a asp-action="Index"
+   class="btn btn-secondary">
     Back to My Appointments
 </a>

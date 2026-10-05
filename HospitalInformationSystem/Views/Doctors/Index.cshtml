@@ -6,6 +6,13 @@
 
 <h1>Doctors</h1>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
 <p>
     <a asp-action="Create"
        class="btn btn-primary">
@@ -21,6 +28,7 @@
             <th>Department</th>
             <th>License Number</th>
             <th>Active</th>
+            <th>Actions</th>
         </tr>
     </thead>
 
@@ -33,6 +41,44 @@
                 <td>@doctor.Department.Name</td>
                 <td>@doctor.LicenseNumber</td>
                 <td>@doctor.IsActive</td>
+                <td>
+                    <a asp-action="Details"
+                       asp-route-id="@doctor.Id"
+                       class="btn btn-sm btn-info">
+                        Details
+                    </a>
+
+                    @if (doctor.IsActive)
+                    {
+                        <a asp-action="Edit"
+                           asp-route-id="@doctor.Id"
+                           class="btn btn-sm btn-primary">
+                            Edit
+                        </a>
+
+                        <form asp-action="Deactivate"
+                              asp-route-id="@doctor.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger">
+                                Deactivate
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Activate"
+                              asp-route-id="@doctor.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Activate
+                            </button>
+                        </form>
+                    }
+                </td>
             </tr>
         }
     </tbody>

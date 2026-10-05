@@ -6,6 +6,13 @@
 
 <h1>Departments</h1>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
 <p>
     <a asp-action="Create"
        class="btn btn-primary">
@@ -19,6 +26,7 @@
             <th>Name</th>
             <th>Description</th>
             <th>Active</th>
+            <th>Actions</th>
         </tr>
     </thead>
 
@@ -29,6 +37,44 @@
                 <td>@department.Name</td>
                 <td>@department.Description</td>
                 <td>@department.IsActive</td>
+                <td>
+                    <a asp-action="Details"
+                       asp-route-id="@department.Id"
+                       class="btn btn-sm btn-info">
+                        Details
+                    </a>
+
+                    @if (department.IsActive)
+                    {
+                        <form asp-action="Deactivate"
+                              asp-route-id="@department.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger">
+                                Deactivate
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Activate"
+                              asp-route-id="@department.Id"
+                              method="post"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Activate
+                            </button>
+                        </form>
+                    }
+
+                    <a asp-action="Edit"
+                       asp-route-id="@department.Id"
+                       class="btn btn-sm btn-primary">
+                        Edit
+                    </a>
+                </td>
             </tr>
         }
     </tbody>

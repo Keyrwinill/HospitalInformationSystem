@@ -40,5 +40,8 @@ public class PatientConfiguration
 
 		builder.Property(x => x.CreatedAt)
 			.HasDefaultValueSql("GETDATE()");
+
+		builder.Property(x => x.IsActive)
+			.HasDefaultValue(true);
 	}
 }

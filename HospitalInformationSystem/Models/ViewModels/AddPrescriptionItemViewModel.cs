@@ -4,7 +4,6 @@ namespace HospitalInformationSystem.Models.ViewModels;
 
 public class AddPrescriptionItemViewModel
 {
-	[Required]
 	public int VisitId { get; set; }
 
 	[Required]

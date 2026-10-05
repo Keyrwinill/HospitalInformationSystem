@@ -18,17 +18,5 @@ namespace HospitalInformationSystem.Controllers
 		{
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
-
-		[Authorize]
-		public IActionResult Secure()
-		{
-			return View();
-		}
-
-		[Authorize(Roles = UserRoles.Admin)]
-		public IActionResult AdminOnly()
-		{
-			return View();
-		}
 	}
 }

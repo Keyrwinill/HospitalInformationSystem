@@ -25,40 +25,37 @@
                 <td>@appointment.AppointmentDateTime</td>
                 <td>
                     @appointment.Patient.MedicalRecordNumber -
-                    @appointment.Patient.FirstName
-                    @appointment.Patient.LastName
+                    @appointment.Patient.FullName
                 </td>
                 <td>@appointment.Status</td>
                 <td>@appointment.Reason</td>
                 <td>
-                    @if (appointment.Status == AppointmentStatus.Scheduled)
+                    @if (appointment.Visit != null)
                     {
-                        if (appointment.Visit == null)
-                        {
-                            <form asp-controller="Visits"
-                                  asp-action="Start"
-                                  method="post"
-                                  class="d-inline">
+                        <a asp-action="Details"
+                           asp-route-id="@appointment.Visit.Id"
+                           class="btn btn-sm btn-primary">
+                            Open Visit
+                        </a>
+                    }
+                    else if (appointment.Status == AppointmentStatus.Scheduled)
+                    {
+                        <form asp-action="Start"
+                              method="post"
+                              class="d-inline">
+                            <input type="hidden"
+                                   name="appointmentId"
+                                   value="@appointment.Id" />
 
-                                <input type="hidden"
-                                       name="appointmentId"
-                                       value="@appointment.Id" />
-
-                                <button type="submit"
-                                        class="btn btn-sm btn-primary">
-                                    Start Visit
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <a asp-controller="Visits"
-                               asp-action="Details"
-                               asp-route-id="@appointment.Visit.Id"
-                               class="btn btn-sm btn-primary">
-                                Open Visit
-                            </a>
-                        }
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Start Visit
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span>-</span>
                     }
                 </td>
             </tr>

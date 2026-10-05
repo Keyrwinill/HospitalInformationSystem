@@ -1,4 +1,6 @@
-﻿namespace HospitalInformationSystem.Models.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HospitalInformationSystem.Models.Entities;
 
 public class User
 {
@@ -13,6 +15,10 @@ public class User
 	public string FirstName { get; set; } = string.Empty;
 
 	public string LastName { get; set; } = string.Empty;
+
+	[NotMapped]
+	public string FullName =>
+		$"{FirstName} {LastName}";
 
 	public string Role { get; set; } = string.Empty;
 

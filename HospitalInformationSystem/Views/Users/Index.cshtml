@@ -1,10 +1,22 @@
-﻿@model IEnumerable<HospitalInformationSystem.Models.Entities.User>
+﻿@using HospitalInformationSystem.Models.Constants
+@using System.Security.Claims
+@model IEnumerable<HospitalInformationSystem.Models.Entities.User>
 
 @{
     ViewData["Title"] = "Users";
+
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
 <h1>Users</h1>
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
 <p>
     <a asp-action="Create"
        class="btn btn-primary">
@@ -19,6 +31,7 @@
             <th>Email</th>
             <th>Role</th>
             <th>Active</th>
+            <th>Actions</th>
         </tr>
     </thead>
 
@@ -27,10 +40,43 @@
         {
             <tr>
                 <td>@user.Account</td>
-                <td>@user.FirstName @user.LastName</td>
+                <td>@user.FullName</td>
                 <td>@user.Email</td>
                 <td>@user.Role</td>
                 <td>@user.IsActive</td>
+
+                <td>
+                    @if (user.Role != UserRoles.Doctor)
+                    {
+                        if (user.IsActive)
+                        {
+                            if (user.Id.ToString() != currentUserId)
+                            {
+                                <form asp-action="Deactivate"
+                                      asp-route-id="@user.Id"
+                                      method="post"
+                                      class="d-inline">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger">
+                                        Deactivate
+                                    </button>
+                                </form>
+                            }
+                        }
+                        else
+                        {
+                            <form asp-action="Activate"
+                                  asp-route-id="@user.Id"
+                                  method="post"
+                                  class="d-inline">
+                                <button type="submit"
+                                        class="btn btn-sm btn-success">
+                                    Activate
+                                </button>
+                            </form>
+                        }
+                    }
+                </td>
             </tr>
         }
     </tbody>

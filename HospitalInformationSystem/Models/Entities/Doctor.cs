@@ -1,4 +1,6 @@
-﻿namespace HospitalInformationSystem.Models.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HospitalInformationSystem.Models.Entities;
 
 public class Doctor
 {
@@ -9,6 +11,10 @@ public class Doctor
 	public int DepartmentId { get; set; }
 
 	public string LicenseNumber { get; set; } = string.Empty;
+
+	[NotMapped]
+	public string FullName =>
+		User.FullName;
 
 	public bool IsActive { get; set; } = true;
 

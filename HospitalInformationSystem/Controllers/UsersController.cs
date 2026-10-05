@@ -1,11 +1,12 @@
 ﻿using HospitalInformationSystem.Data;
 using HospitalInformationSystem.Models.Constants;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using HospitalInformationSystem.Models.Entities;
 using HospitalInformationSystem.Models.ViewModels;
 using HospitalInformationSystem.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HospitalInformationSystem.Controllers;
 
@@ -13,14 +14,14 @@ namespace HospitalInformationSystem.Controllers;
 public class UsersController : Controller
 {
 	private readonly HospitalDbContext _context;
-	private readonly PasswordService _passwordService;
+	private readonly IUserService _userService;
 
 	public UsersController(
 		HospitalDbContext context,
-		PasswordService passwordService)
+		IUserService userService)
 	{
 		_context = context;
-		_passwordService = passwordService;
+		_userService = userService;
 	}
 
 	public async Task<IActionResult> Index()
@@ -48,13 +49,19 @@ public class UsersController : Controller
 			return View(model);
 		}
 
-		var allowedRoles = new[]
-		{
-			UserRoles.Admin,
-			UserRoles.Receptionist
-		};
+		var currentUserId = Guid.Parse(
+			User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-		if (!allowedRoles.Contains(model.Role))
+		var result = await _userService.CreateAsync(
+			model.Account,
+			model.Email,
+			model.FirstName,
+			model.LastName,
+			model.Role,
+			model.Password,
+			currentUserId);
+
+		if (result == UserOperationResult.InvalidRole)
 		{
 			ModelState.AddModelError(
 				nameof(model.Role),
@@ -63,10 +70,7 @@ public class UsersController : Controller
 			return View(model);
 		}
 
-		var accountExists = await _context.Users
-			.AnyAsync(x => x.Account == model.Account);
-
-		if (accountExists)
+		if (result == UserOperationResult.DuplicateAccount)
 		{
 			ModelState.AddModelError(
 				nameof(model.Account),
@@ -75,10 +79,7 @@ public class UsersController : Controller
 			return View(model);
 		}
 
-		var emailExists = await _context.Users
-			.AnyAsync(x => x.Email == model.Email);
-
-		if (emailExists)
+		if (result == UserOperationResult.DuplicateEmail)
 		{
 			ModelState.AddModelError(
 				nameof(model.Email),
@@ -87,23 +88,63 @@ public class UsersController : Controller
 			return View(model);
 		}
 
-		var user = new User
+		return RedirectToAction(nameof(Index));
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Deactivate(Guid id)
+	{
+		var currentUserId = Guid.Parse(
+			User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+		var result = await _userService.DeactivateAsync(
+			id,
+			currentUserId);
+
+		if (result == UserOperationResult.NotFound)
 		{
-			Id = Guid.NewGuid(),
-			Account = model.Account,
-			Email = model.Email,
-			FirstName = model.FirstName,
-			LastName = model.LastName,
-			Role = model.Role,
-			IsActive = true
-		};
+			return NotFound();
+		}
 
-		user.PasswordHash =
-			_passwordService.HashPassword(user, model.Password);
+		if (result == UserOperationResult.Inactive ||
+			result == UserOperationResult.DoctorManagedSeparately)
+		{
+			return BadRequest();
+		}
 
-		_context.Users.Add(user);
+		if (result == UserOperationResult.CannotDeactivateSelf)
+		{
+			TempData["ErrorMessage"] =
+				"You cannot deactivate your own account.";
 
-		await _context.SaveChangesAsync();
+			return RedirectToAction(nameof(Index));
+		}
+
+		return RedirectToAction(nameof(Index));
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Activate(Guid id)
+	{
+		var currentUserId = Guid.Parse(
+			User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+		var result = await _userService.ActivateAsync(
+			id,
+			currentUserId);
+
+		if (result == UserOperationResult.NotFound)
+		{
+			return NotFound();
+		}
+
+		if (result == UserOperationResult.AlreadyActive ||
+			result == UserOperationResult.DoctorManagedSeparately)
+		{
+			return BadRequest();
+		}
 
 		return RedirectToAction(nameof(Index));
 	}
